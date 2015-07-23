@@ -2,7 +2,7 @@
 
 #Description
 
-This code book is to include descriptions of the data, variables, the variables, and any transformations of work that was performed to clean up the data used for the course project.
+This code book is to include descriptions of the data, the variables, and any transformations of work that was performed to clean up the data used for the course project.
 
 #Data
 
