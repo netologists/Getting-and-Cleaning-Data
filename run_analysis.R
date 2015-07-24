@@ -61,11 +61,12 @@ newdf<- measure[, !grepl("Freq", colnames(measure))]
 
 ## 5 Create a summary file of the averages of each variable for each activity and each subject
 
-endset<-ddply(newdf, c(.(Activity),.(SubjectID)),summarize,Means=colMeans(newdf[3:(length(names(newdf)))]))
-endsetnames<-rep(names(newdf[,3:(length(names(newdf)))]),nrow(activities)*length(c(unique(subjecttrain$subjectid),unique(subjecttest$subjectid))))
+library(reshape2)
+newdf.melted<- melt(newdf, id = c("Activity", "SubjectID"))
+newdf.mean<- dcast(newdf.melted, Activity + SubjectID ~ variable, mean)
 
 ## 5.1 Write a file entitled "tidy.txt" using the write.table() and row.names=FALSE
 
-write.table(endset, "tidy.txt", row.names = FALSE, quote = FALSE)
+write.table(newdf.mean, "tidy.txt", row.names = FALSE)
 
 
