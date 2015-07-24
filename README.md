@@ -29,13 +29,11 @@ Prep - Load Data
 
 Merge the data into 1 dataset
 
-Name the columns
-
 Extract only the means and standard deviations for each measurement
 
 Use descriptive activity names
 
-Use descriptive variable names
+Use descriptive variable/column names
 
 Remove Mean Freq columns
 
