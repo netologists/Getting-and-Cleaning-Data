@@ -15,7 +15,7 @@ The sensor signals (accelerometer and gyroscope) were pre-processed by applying 
 For each record it is provided:
 ======================================
 
-- Triaxial (X, Y, Z) acceleration from the accelerometer (total acceleration) and the estimated body acceleration.  Measured in standing units 'g.'
+- Triaxial (X, Y, Z) acceleration from the accelerometer (total acceleration) and the estimated body acceleration.  Measured in standing units 'g'.
 - Triaxial (X, Y, Z) Angular velocity from the gyroscope.   The units are radians/second.
 - A 561-feature vector with time and frequency domain variables. 
 - Its activity label. 
@@ -26,9 +26,9 @@ For each record it is provided:
 For this project, the variables of interest were only the mean and standard deviation measures, as well as the subject and activity variables.  The merged dataset consists of 10299 observations of 68 variables.
 
 Here is a list of the variables in the merged dataset.
-
-"Subject"                        
-"Activity" - 6 levels:  WALKING, WALKINGUPSTAIRS, WALKINGDOWNSTAIRS, SITTING, STANDING, LAYING                      
+                    
+"Activity" - 6 levels:  WALKING, WALKINGUPSTAIRS, WALKINGDOWNSTAIRS, SITTING, STANDING, LAYING    
+"SubjectID" - 1-30
 "timeBodyAccMean -X"          
 "timeBodyAccMean -Y"            
 "timeBodyAccMean -Z"             
@@ -98,12 +98,12 @@ Here is a list of the variables in the merged dataset.
 
 # Data Manipulation
 
-Merging the training and testing files using the subject as the matching variable.
+Merging the training and testing files.
 
 Selecting only the mean and standard deviation variables for inclusion.
 
-Changing the column titles to make them more readable.
-
 Changing the activity level codes to the descriptive text identifiers.
+
+Changing the column titles to make them more readable.
 
 Creating a summary file of the averages of each measurement for each activity and each subject.
