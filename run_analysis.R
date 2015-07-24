@@ -6,71 +6,66 @@ download.file(fileUrl, "Dataset.zip", mode="wb")
 unzip("Dataset.zip")
 
 ## Prep - Load Data
-traindata<- read.table("UCI HAR Dataset/train/x_train.txt")
-testdata<- read.table("UCI HAR Dataset/test/x_test.txt")
-subjecttrain<- read.table("UCI HAR Dataset/train/subject_train.txt")
-subjecttest<- read.table("UCI HAR Dataset/test/subject_test.txt")
-trainlabels<- read.table("UCI HAR Dataset/train/y_train.txt")
-testlabels<- read.table("UCI HAR Dataset/test/y_test.txt")
-features<- read.table("UCI HAR Dataset/features.txt")
-activities<- read.table("UCI HAR Dataset/activity_labels.txt")
+
+library(plyr)
+
+traindata<- read.table("UCI HAR Dataset/train/x_train.txt", header=FALSE, stringsAsFactors=FALSE)
+testdata<- read.table("UCI HAR Dataset/test/x_test.txt", header=FALSE, stringsAsFactors=FALSE)
+subjecttrain<- read.table("UCI HAR Dataset/train/subject_train.txt", header=FALSE, stringsAsFactors=FALSE, col.names=c("SubjectID"))
+subjecttest<- read.table("UCI HAR Dataset/test/subject_test.txt", header=FALSE, stringsAsFactors=FALSE, col.names=c("SubjectID"))
+trainlabels<- read.table("UCI HAR Dataset/train/y_train.txt", header=FALSE, stringsAsFactors=FALSE, col.names=c("Activity"))
+testlabels<- read.table("UCI HAR Dataset/test/y_test.txt", header=FALSE, stringsAsFactors=FALSE, col.names=c("Activity"))
+features<- read.table("UCI HAR Dataset/features.txt", header=FALSE, stringsAsFactors=FALSE)
+activities<- read.table("UCI HAR Dataset/activity_labels.txt", header=FALSE, stringsAsFactors=FALSE)
 
 ## 1. Merge the data into 1 dataset
 
-data_info<- rbind(traindata, testdata)
-subject_info<- rbind(subjecttrain, subjecttest)
-label_info<- rbind(trainlabels, testlabels)
-total_info<- cbind(label_info, subject_info, data_info)
+train_info<- cbind(trainlabels, subjecttrain, traindata)
+test_info<- cbind(testlabels, subjecttest, testdata)
+total_info<- rbind(train_info, test_info)
 
-## 2.1.  Name the columns
 
-feature_names<- as.character(features[,2])
-new_names<- c("subject", "activity", feature_names)
-colnames(total_info)<- new_names
+## 2.  Extract only the means and standard deviations for each measurement
 
-## 2.2.  Extract only the means and standard deviations for each measurement
-
-mean_measure<- grep("mean()", colnames(total_info))
-std_measure<- grep("std()", colnames(total_info))
-only_mean_std<- c(mean_measure, std_measure)
-sorted_only<- sort(only_mean_std)
-newdf<- total_info[, c(1, 2, sorted_only)]
+measure<- total_info[, c(c(1:2), grep(".*mean|std.*", features$V2)+2)]
+names<- grep(".*mean|std.*", features$V2, value=TRUE)
 
 ## 3. Use descriptive activity names
 
-library(reshape2)
-newdf$activity<- factor(newdf$activity, levels = activities[,1], labels = activities[,2])
-newdf$subject<- as.factor(newdf$subject)
+
+measure$Activity<- as.factor(measure$Activity)
+levels(measure$Activity)<- activities$V2
 
 ## 4. Use descriptive variable names
 
-colNames<- colnames(newdf)
+names(measure)<- c("Activity", "SubjectID", names)
+
+colNames<- colnames(measure)
+
 for (i in 1:length(colNames))   {
-  colNames[i] = gsub("subject", "Subject", colNames[i])
-  colNames[i] = gsub("activity", "Activity", colNames[i])
   colNames[i] = gsub("-mean", "Mean", colNames[i])
   colNames[i] = gsub("-std", "StdDev", colNames[i])
   colNames[i] = gsub("\\()", " ", colNames[i])
   colNames[i] = gsub("^t()", "time", colNames[i])
   colNames[i] = gsub("^f()", "freq", colNames[i])
   colNames[i] = gsub("([Gg]ravity)", "Gravity", colNames[i])
-  colNames[i] = gsub("([Bb]ody)", "Body", colNames[i])
+  colNames[i] = gsub("([Bb]ody[Bb]ody|[Bb]ody)", "Body", colNames[i])
   colNames[i] = gsub("([Gg]yro)", "Gyro", colNames[i])
   colNames[i] = gsub("([Bb]odyaccjerkmag)", "BodyAccJerkMag", colNames[i])
 }
-colnames(newdf) = colNames
+colnames(measure) = colNames
 
 ## 4.1 Remove Mean Freq columns
 
-newdf2<- newdf[, !grepl("Freq", colnames(newdf))]
+newdf<- measure[, !grepl("Freq", colnames(measure))]
 
 ## 5 Create a summary file of the averages of each variable for each activity and each subject
 
-library(reshape2)
-newdf2.melted<- melt(newdf2, id = c("Subject", "Activity"))
-newdf2.mean<- dcast(newdf2.melted, Subject + Activity ~ variable, mean)
+endset<-ddply(newdf, c(.(Activity),.(SubjectID)),summarize,Means=colMeans(newdf[3:(length(names(newdf)))]))
+endsetnames<-rep(names(newdf[,3:(length(names(newdf)))]),nrow(activities)*length(c(unique(subjecttrain$subjectid),unique(subjecttest$subjectid))))
 
 ## 5.1 Write a file entitled "tidy.txt" using the write.table() and row.names=FALSE
 
-write.table(newdf2.mean, "tidy.txt", row.names = FALSE, quote = FALSE)
+write.table(endset, "tidy.txt", row.names = FALSE)
+
 
