@@ -66,6 +66,6 @@ endsetnames<-rep(names(newdf[,3:(length(names(newdf)))]),nrow(activities)*length
 
 ## 5.1 Write a file entitled "tidy.txt" using the write.table() and row.names=FALSE
 
-write.table(endset, "tidy.txt", row.names = FALSE)
+write.table(endset, "tidy.txt", row.names = FALSE, quote = FALSE)
 
 
